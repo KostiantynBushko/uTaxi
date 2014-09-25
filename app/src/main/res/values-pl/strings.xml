@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ulubiona Taksówka</string>
+    <string name="text_logo">Ulubiona</string>
+    <string name="call">Rezerwuj samochód</string>
+    <string name="online_order">Zamów online</string>
+    <string name="kyivstar">Kyivstar</string>
+    <string name="life">Life</string>
+    <string name="mts">MTS</string>
+
+</resources>

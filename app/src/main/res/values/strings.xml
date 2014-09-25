@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Ulublene</string>
+    <string name="text_logo">Ulublene</string>
+    <string name="call">Call driver</string>
+    <string name="online_order">Online order</string>
+    <string name="kyivstar">Kyivstar</string>
+    <string name="life">Life</string>
+    <string name="mts">MTS</string>
+
+    <string name="next">Next</string>
+
+</resources>

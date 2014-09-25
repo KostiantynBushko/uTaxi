@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Любимое Такси</string>
+    <string name="text_logo">Любимое</string>
+    <string name="call">Заказать автомобиль</string>
+    <string name="online_order">Онлайн заказ</string>
+    <string name="kyivstar">Киевстар</string>
+    <string name="life">Life</string>
+    <string name="mts">МТС</string>
+
+
+</resources>
