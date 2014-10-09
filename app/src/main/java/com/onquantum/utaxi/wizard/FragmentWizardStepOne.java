@@ -20,6 +20,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.onquantum.utaxi.R;
 import com.onquantum.utaxi.services.TrackingService;
 
@@ -45,9 +46,12 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 @Override
                 public void onCameraChange(CameraPosition cameraPosition) {
                     Log.i("info"," Camera Position = " + cameraPosition.toString());
+                    googleMap.clear();
+                    googleMap.addMarker(new MarkerOptions().position(cameraPosition.target));
                 }
             });
         }
+
         ((Button) root.findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
