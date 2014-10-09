@@ -37,39 +37,4 @@ public class FragmentHome extends AbstractFragment {
         });
         return root;
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.i("info", "FragmentHome Resume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.i("info","FragmentHome Pause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.i("info","FragmentHome Stop");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.i("info","FragmentHome DestroyView");
-        if (fragmentsCommonInterface != null) {
-            fragmentsCommonInterface.onCloseFragment();
-        } else if (getActivity() instanceof FragmentsCommonInterface) {
-            ((MainActivity)getActivity()).onCloseFragment();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.i("info","FragmentHome Destroy");
-    }
 }

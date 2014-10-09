@@ -15,6 +15,7 @@ public class FragmentWizardStepThree extends AbstractFragmentWizard {
     private View root;
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup group, Bundle savedInstanceState) {
+        currentWizardStep = 2;
         root = layoutInflater.inflate(R.layout.wizard_step_three,null);
         return root;
     }

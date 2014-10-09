@@ -23,11 +23,24 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/taxi"
+        android:textSize="20sp"
+        android:id="@+id/textView1"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:shadowColor="@color/red"
+        android:layout_marginTop="5dp"/>
+
     <FrameLayout
         android:id="@+id/fragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"></FrameLayout>
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"></FrameLayout>
+
 </RelativeLayout>

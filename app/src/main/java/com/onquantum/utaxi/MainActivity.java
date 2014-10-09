@@ -21,8 +21,10 @@ import android.widget.TextView;
 
 import com.onquantum.utaxi.wizard.AbstractFragmentWizard;
 
+import java.util.Objects;
 
-public class MainActivity extends Activity implements FragmentsCommonInterface, View.OnTouchListener{
+
+public class MainActivity extends Activity implements FragmentsCommonInterface,AbstractFragmentWizard.WizardCommonInterface, View.OnTouchListener{
 
     private TelephonyManager telephonyManager;
     private Context context;
@@ -30,6 +32,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface, 
     private FragmentTransaction fragmentTransaction;
     private Fragment homeFragment;
     private TextView textLogo;
+    private TextView textLogoInfo;
 
     private boolean isTouched;
     private float touchX, touchY;
@@ -62,6 +65,10 @@ public class MainActivity extends Activity implements FragmentsCommonInterface, 
         textLogo.setText(text);
         textLogo.setAnimation(animation);
 
+        textLogoInfo = (TextView)findViewById(R.id.textView1);
+        textLogoInfo.setTypeface(font);
+        textLogoInfo.setAnimation(animation);
+
 
     }
 
@@ -70,23 +77,33 @@ public class MainActivity extends Activity implements FragmentsCommonInterface, 
         if (getFragmentManager().getBackStackEntryCount() <= 1) {
             this.finish();
         } else {
-            Animation animation = AnimationUtils.loadAnimation(this,R.anim.fade_in);
-            textLogo.setAnimation(animation);
-            /*if (AbstractFragmentWizard.currentWizardStep > 1) {
-                while (AbstractFragmentWizard.currentWizardStep > 1){
-                    getFragmentManager().popBackStack();
-                    AbstractFragmentWizard.currentWizardStep -= 1;
-                }
-                getFragmentManager().beginTransaction().setCustomAnimations(R.anim.move_in_down, R.anim.move_out_down);
-            }*/
+            if (textLogo.getVisibility() == View.VISIBLE) {
+                Animation animation = AnimationUtils.loadAnimation(this,R.anim.fade_in);
+                textLogo.setAnimation(animation);
+                textLogoInfo.setAnimation(animation);
+            }
             getFragmentManager().popBackStack();
         }
     }
 
     @Override
-    public void onCloseFragment() {
+    public void onCloseFragment(Object object) {
+        Log.i("info","FragmentCommonInterface onCloseFragment");
+        textLogo.setVisibility(View.INVISIBLE);
+        textLogoInfo.setVisibility(View.INVISIBLE);
+        Animation animation = AnimationUtils.loadAnimation(context,R.anim.fade_out);
+        textLogo.setAnimation(animation);
+        textLogoInfo.setAnimation(animation);
+    }
+
+    @Override
+    public void onRunFragment() {
+        Log.i("info","FragmentCommonInterface onRunFragment");
+        textLogo.setVisibility(View.VISIBLE);
+        textLogoInfo.setVisibility(View.VISIBLE);
         Animation animation = AnimationUtils.loadAnimation(context,R.anim.fade_in);
         textLogo.setAnimation(animation);
+        textLogoInfo.setAnimation(animation);
     }
 
     @Override
@@ -115,10 +132,17 @@ public class MainActivity extends Activity implements FragmentsCommonInterface, 
         return true;
     }
 
-    private void slideUp() {
-
+    @Override
+    public void OnStartExecuteWizard() {
+        Log.i("info","OnStartExecuteWizard");
     }
-    private void slideDown() {
 
+    @Override
+    public void OnSwitchStep(int step) {
+    }
+
+    @Override
+    public void OnCloseWizard() {
+        Log.i("info","OnCloseWizard");
     }
 }

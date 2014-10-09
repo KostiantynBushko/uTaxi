@@ -72,39 +72,4 @@ public class FragmentCallDriver extends AbstractFragment{
         });
         return root;
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.i("info","FragmentCallDriver Resume");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.i("info","FragmentCallDriver Pause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.i("info","FragmentCallDriver Stop");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.i("info","FragmentCallDriver DestroyView");
-        if (fragmentsCommonInterface != null) {
-            fragmentsCommonInterface.onCloseFragment();
-        } else if (getActivity() instanceof FragmentsCommonInterface) {
-            ((MainActivity)getActivity()).onCloseFragment();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.i("info","FragmentCallDriver Destroy");
-    }
 }

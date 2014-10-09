@@ -3,10 +3,15 @@
 
     <string name="app_name">Улюблене Таксі</string>
     <string name="text_logo">Улюблене</string>
+    <string name="taxi">таксі</string>
     <string name="call">Замовити автомобіль</string>
     <string name="online_order">Онлайн замовлення</string>
     <string name="kyivstar">Київстар</string>
     <string name="life">Life</string>
     <string name="mts">МТС</string>
 
+    <string name="current_address">Поточний адреса</string>
+    <string name="destination_address">Адреса призначення</string>
+
+    <string name="next">далі</string>
 </resources>
