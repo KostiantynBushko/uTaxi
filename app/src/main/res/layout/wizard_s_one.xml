@@ -58,7 +58,8 @@
             android:layout_marginRight="4dp"
             android:layout_marginBottom="4dp"
             android:layout_marginTop="4dp"
-            android:background="@drawable/panel">
+            android:background="@drawable/panel"
+            android:id="@+id/relativeLayout">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -74,6 +75,13 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="5dp"/>
         </RelativeLayout>
+
+        <com.onquantum.utaxi.common.Marker
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_alignTop="@+id/relativeLayout"
+            android:layout_alignParentBottom="true" />
 
     </RelativeLayout>
 
