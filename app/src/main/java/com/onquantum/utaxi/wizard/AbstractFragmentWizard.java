@@ -81,4 +81,6 @@ public class AbstractFragmentWizard extends Fragment {
         super.onDetach();
     }
 
+    public void onRecognizer(String result){}
+
 }

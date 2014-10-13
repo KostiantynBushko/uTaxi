@@ -5,9 +5,11 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.telephony.TelephonyManager;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -18,9 +20,12 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.onquantum.utaxi.common.Constant;
 import com.onquantum.utaxi.wizard.AbstractFragmentWizard;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -30,6 +35,8 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
     private Context context;
 
     private FragmentTransaction fragmentTransaction;
+    private Fragment currentFragment;
+    private FragmentManager fragmentManager;
     private Fragment homeFragment;
     private TextView textLogo;
     private TextView textLogoInfo;
@@ -69,7 +76,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
         textLogoInfo.setTypeface(font);
         textLogoInfo.setAnimation(animation);
 
-
+        fragmentManager = getFragmentManager();
     }
 
     @Override
@@ -144,5 +151,25 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
     @Override
     public void OnCloseWizard() {
         Log.i("info","OnCloseWizard");
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        currentFragment = fragment;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == Constant.VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+            ArrayList matches = intent.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (matches.size() > 0) {
+                Toast.makeText(this, matches.get(0).toString(), Toast.LENGTH_LONG).show();
+                Fragment fragment = fragmentManager.findFragmentById(R.id.fragment);
+                if (fragment != null && fragment instanceof AbstractFragmentWizard) {
+                    ((AbstractFragmentWizard)fragment).onRecognizer(matches.get(0).toString());
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 }

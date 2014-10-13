@@ -10,7 +10,7 @@
     <string name="life">Life</string>
     <string name="mts">МТС</string>
 
-    <string name="current_address">Поточний адреса</string>
+    <string name="current_address">Поточна адреса</string>
     <string name="destination_address">Адреса призначення</string>
 
     <string name="next">далі</string>

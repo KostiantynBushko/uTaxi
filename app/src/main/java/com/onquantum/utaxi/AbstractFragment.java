@@ -14,14 +14,19 @@ public class AbstractFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
         Log.i("info", "AbstractFragment Resume");
         if (fragmentsCommonInterface != null) {
             fragmentsCommonInterface.onRunFragment();
         } else if (getActivity() instanceof FragmentsCommonInterface) {
             ((FragmentsCommonInterface) getActivity()).onRunFragment();
         }
+        super.onStart();
+    }
+    @Override
+    public void onResume() {
+
+        super.onResume();
     }
 
     @Override
