@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.speech.RecognizerIntent;
 
+import com.onquantum.utaxi.R;
+
 import java.util.List;
 
 /**
@@ -34,7 +36,7 @@ public class SpeechRecognitionHelper {
 
     private static void startRecognitionActivity(Activity activity) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Select an application");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,activity.getResources().getString(R.string.speak_address));
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,RecognizerIntent.ACTION_GET_LANGUAGE_DETAILS);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,1);
         activity.startActivityForResult(intent,Constant.VOICE_RECOGNITION_REQUEST_CODE);

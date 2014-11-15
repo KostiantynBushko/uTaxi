@@ -12,6 +12,7 @@
 
     <string name="current_address">Current address</string>
     <string name="destination_address">Destination address</string>
+    <string name="speak_address">Speak now address</string>
 
     <string name="next">Next</string>
     

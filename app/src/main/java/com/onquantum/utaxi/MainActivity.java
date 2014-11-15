@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.onquantum.utaxi.common.Constant;
+import com.onquantum.utaxi.services.TrackingService;
 import com.onquantum.utaxi.wizard.AbstractFragmentWizard;
 
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
     private TelephonyManager telephonyManager;
     private Context context;
 
+    private BroadcastReceiver locationBroadcastReceiver;
     private FragmentTransaction fragmentTransaction;
     private Fragment currentFragment;
     private FragmentManager fragmentManager;
@@ -77,6 +81,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
         textLogoInfo.setAnimation(animation);
 
         fragmentManager = getFragmentManager();
+        //startService(new Intent(this, TrackingService.class));
     }
 
     @Override
@@ -95,7 +100,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
 
     @Override
     public void onCloseFragment(Object object) {
-        Log.i("info","FragmentCommonInterface onCloseFragment");
+        //Log.i("info","FragmentCommonInterface onCloseFragment");
         textLogo.setVisibility(View.INVISIBLE);
         textLogoInfo.setVisibility(View.INVISIBLE);
         Animation animation = AnimationUtils.loadAnimation(context,R.anim.fade_out);
@@ -105,7 +110,7 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
 
     @Override
     public void onRunFragment() {
-        Log.i("info","FragmentCommonInterface onRunFragment");
+        //Log.i("info","FragmentCommonInterface onRunFragment");
         textLogo.setVisibility(View.VISIBLE);
         textLogoInfo.setVisibility(View.VISIBLE);
         Animation animation = AnimationUtils.loadAnimation(context,R.anim.fade_in);
@@ -123,16 +128,13 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
                 touchY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
-                Log.i("info"," MainActivity ACTION_UP");
                 isTouched = false;
                 touchX = 0.0f;
                 touchY = 0.0f;
                 break;
             case MotionEvent.ACTION_MOVE:
-                Log.i("info"," MainActivity ACTION_MOVE");
                 touchX += event.getX();
                 touchY += event.getY();
-                Log.i("info"," MainActivity Y = " + touchY);
                 break;
             default:break;
         }
@@ -150,12 +152,18 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
 
     @Override
     public void OnCloseWizard() {
-        Log.i("info","OnCloseWizard");
+        //Log.i("info","OnCloseWizard");
     }
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         currentFragment = fragment;
+    }
+
+    @Override
+    public void onDestroy() {
+        //stopService(new Intent(this, TrackingService.class));
+        super.onDestroy();
     }
 
     @Override

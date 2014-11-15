@@ -1,18 +1,16 @@
 package com.onquantum.utaxi.wizard;
 
-import android.app.ActivityManager;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.speech.RecognizerIntent;
+import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.InflateException;
@@ -23,22 +21,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.onquantum.utaxi.R;
-import com.onquantum.utaxi.common.Constant;
 import com.onquantum.utaxi.common.SpeechRecognitionHelper;
 import com.onquantum.utaxi.services.TrackingService;
 
@@ -48,8 +38,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 /**
  * Created by Admin on 9/24/14.
@@ -60,6 +48,8 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     private GoogleMap googleMap;
     private MapFragment mapFragment;
     private BroadcastReceiver locationBroadcastReceiver;
+    private ServiceConnection trackingServiceConnection;
+    private boolean trackingServiceIsBind = false;
     private LatLng currentLocation;
     private LatLng cameraLocation;
     private boolean isCurrentLocationSet = false;
@@ -71,6 +61,8 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     private String country;
     private String language;
     private Geocoder geocoder;
+
+    private Intent tsIntent;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,7 +78,7 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 parent.removeView(root);
         }
         try {
-            root = layoutInflater.inflate(R.layout.wizard_s_one, container,false);
+            root = layoutInflater.inflate(R.layout.wizard_step_one, container,false);
             touchableWrapper = new TouchableWrapper(getActivity());
             touchableWrapper.addView(root);
             if (googleMap == null) {
@@ -115,7 +107,9 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 transaction.commit();
             }
         });
+
         tvAddress = (TextView)root.findViewById(R.id.textView);
+
         ((ImageButton)root.findViewById(R.id.voiceButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,18 +121,31 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
             @Override
             public void run() {
                 getActivity().startService(new Intent(getActivity(), TrackingService.class));
+                trackingServiceConnection = new ServiceConnection() {
+                    @Override
+                    public void onServiceConnected(ComponentName name, IBinder service) {
+                        Log.i("info","Bind");
+                        trackingServiceIsBind = true;
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName name) {
+                        Log.i("info","Unbind");
+                        trackingServiceIsBind = false;
+                    }
+                };
+                //tsIntent = new Intent(getActivity(),TrackingService.class);
+                //getActivity().bindService(tsIntent, trackingServiceConnection, Activity.BIND_AUTO_CREATE);
+
                 locationBroadcastReceiver = new PositionReceiver();
                 IntentFilter intentFilter = new IntentFilter(TrackingService.BROADCAST_LOCATION_CHANGE_ACTION);
                 getActivity().registerReceiver( locationBroadcastReceiver,intentFilter);
                 isTouchEnable = true;
             }
-        },1000);
+        },800);
         Locale locale = new Locale(language,country);
-        Log.i("info"," Locale : Country = "
-                + locale.getCountry()
-                + " Language = " + locale.getLanguage()
-                + " Locale = " + locale.getISO3Language());
         geocoder = new Geocoder(getActivity(),locale);
+
         return touchableWrapper;
     }
 
@@ -153,13 +160,20 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
         try {
             getActivity().unregisterReceiver(locationBroadcastReceiver);
         }catch (IllegalArgumentException e) {}
-
         MapFragment map = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (map != null){
-            getFragmentManager().beginTransaction().remove(map).commit();
+            try {
+                getFragmentManager().beginTransaction().remove(map).commit();
+            }catch (RuntimeException e) {}
             googleMap = null;
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        //getActivity().unbindService(trackingServiceConnection);
+        super.onDestroy();
     }
 
     @Override
@@ -176,6 +190,8 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     @Override
     public void onRecognizer(String result){
         Log.i("info"," On Recognizer = " + result);
+        geocoder(result);
+
     }
 
     private void updateCurrentPosition(LatLng latLng) {
@@ -191,17 +207,15 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     }
 
     private void geocoder(LatLng location) {
-        Log.i("info"," start geicoding ");
         try {
             if (location != null){
                 List<Address>addressList =  geocoder.getFromLocation(location.latitude,location.longitude,1);
                 if (!addressList.isEmpty()) {
+                    Log.i("info"," Address : " + addressList.get(0).toString());
                     pickupAddress = addressList.get(0);
                     String thoroughfare = pickupAddress.getThoroughfare();
                     String feature = pickupAddress.getFeatureName();
-                    Log.i("info"," Thoroughfare : " + thoroughfare + "  featureName : " + feature);
                     if (thoroughfare.equals(feature)){
-                        Log.i("info"," **** thoroughfare equals feature ");
                         tvAddress.setText(pickupAddress.getThoroughfare());
                     } else {
                         tvAddress.setText(pickupAddress.getThoroughfare() + " " + pickupAddress.getFeatureName());
@@ -213,6 +227,31 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
         }
     }
 
+    private void geocoder(String string) {
+        Geocoder geoc = new Geocoder(getActivity());
+        try {
+            ArrayList<Address>addresses = (ArrayList<Address>) geoc
+                    .getFromLocationName(string + "Львів" + "Львівська область" + "Україна",1);
+            for (Address add : addresses) {
+                double lat = add.getLatitude();
+                double lon = add.getLongitude();
+                LatLng latLng = new LatLng(lat,lon);
+                pickupAddress = add;
+                String thoroughfare = pickupAddress.getThoroughfare();
+                String feature = pickupAddress.getFeatureName();
+                if (thoroughfare.equals(feature)){
+                    tvAddress.setText(pickupAddress.getThoroughfare());
+                } else {
+                    tvAddress.setText(pickupAddress.getThoroughfare() + " " + pickupAddress.getFeatureName());
+                }
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(16).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
+         } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
     /* Inner classes */
     private class PositionReceiver extends BroadcastReceiver{
         @Override

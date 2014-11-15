@@ -46,9 +46,8 @@ public class AbstractFragmentWizard extends Fragment {
 
     @Override
     public void onResume() {
-        super.onResume();
         Log.i("info","AbstractFragmentWizard onResume");
-        Log.i("info","  - cur fragment = " + currentWizardStep);
+        super.onResume();
     }
 
     @Override
@@ -65,7 +64,7 @@ public class AbstractFragmentWizard extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Log.i("info","AbstractFragmentWizard onDestroy");
+        Log.i("info","AbstractFragmentWizard onDestroyView");
         super.onDestroyView();
     }
 

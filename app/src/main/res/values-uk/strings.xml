@@ -12,6 +12,7 @@
 
     <string name="current_address">Поточна адреса</string>
     <string name="destination_address">Адреса призначення</string>
+    <string name="speak_address">Диктуйте адресу</string>
 
     <string name="next">далі</string>
 </resources>

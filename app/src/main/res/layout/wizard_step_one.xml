@@ -13,10 +13,23 @@
         android:layout_centerHorizontal="true"
         android:clickable="true">
 
-        <com.google.android.gms.maps.MapView
+        <fragment
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/map"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            class="com.google.android.gms.maps.MapFragment"
+            map:uiCompass="false"
+            map:uiZoomControls="false"
+            map:cameraZoom="14"
+            map:mapType="normal"
+            tools:ignore="MissingPrefix"
+            android:layout_alignParentTop="true" />
 
         <Button
             android:layout_width="wrap_content"
@@ -52,24 +65,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="address"
+                android:text="@string/current_address"
                 android:id="@+id/textView"
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:layout_toLeftOf="@+id/voiceButton"
+                android:layout_toStartOf="@+id/voiceButton" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/voiceButton"
+                android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginRight="5dp"
-                android:layout_marginLeft="5dp"
-                android:gravity="center"/>
+                android:src="@drawable/button_mic"
+                android:background="@android:color/transparent"
+                android:layout_marginRight="10dp"/>
         </RelativeLayout>
 
         <com.onquantum.utaxi.common.Marker
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_centerHorizontal="true"
-            android:layout_alignTop="@+id/relativeLayout"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/relativeLayout" />
 
     </RelativeLayout>
 

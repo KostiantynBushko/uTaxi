@@ -15,7 +15,6 @@ public class AbstractFragment extends Fragment {
 
     @Override
     public void onStart() {
-        Log.i("info", "AbstractFragment Resume");
         if (fragmentsCommonInterface != null) {
             fragmentsCommonInterface.onRunFragment();
         } else if (getActivity() instanceof FragmentsCommonInterface) {
@@ -32,13 +31,11 @@ public class AbstractFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("info","AbstractFragment Pause");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.i("info","AbstractFragment Stop");
         if (fragmentsCommonInterface != null) {
             fragmentsCommonInterface.onCloseFragment(this);
         } else if (getActivity() instanceof FragmentsCommonInterface) {
@@ -54,6 +51,5 @@ public class AbstractFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("info","AbstractFragment Destroy");
     }
 }

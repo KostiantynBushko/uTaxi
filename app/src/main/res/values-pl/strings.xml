@@ -11,6 +11,7 @@
 
     <string name="current_address">Aktualny adres</string>
     <string name="destination_address">Adres docelowy</string>
+    <string name="speak_address">Mów teraz address</string>
 
     <string name="next">następny</string>
 

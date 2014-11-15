@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -16,15 +17,27 @@ import android.widget.Toast;
  */
 public class TrackingService extends Service implements LocationListener{
 
-    private static final long  MIN_UPDATE_TIME_MS = 1000;
-    private static final float MIN_UPDATE_DISTANCE = 1;
+    private static final long  MIN_UPDATE_TIME_MS = 0;
+    private static final float MIN_UPDATE_DISTANCE = 0;
     private LocationManager locationManager;
+    private Location currentLocation;
 
     public final static String BROADCAST_LOCATION_CHANGE_ACTION = "com.onquantum.utaxi.services.trackingservice.location";
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        Log.i("info"," TrackingService onBind");
+        return new Binder();
+    }
+    @Override
+    public void onRebind(Intent intent) {
+        Log.i("info"," TrackingService onRebind");
+        super.onRebind(intent);
+    }
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.i("info"," TrackingService onUnbind");
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -44,6 +57,7 @@ public class TrackingService extends Service implements LocationListener{
                 this.onLocationChanged(location);
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,MIN_UPDATE_TIME_MS,MIN_UPDATE_DISTANCE,this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,MIN_UPDATE_TIME_MS,MIN_UPDATE_DISTANCE,this);
         }else {
             Toast.makeText(getApplicationContext(),"GPS is not enable",Toast.LENGTH_LONG).show();
         }
@@ -59,9 +73,13 @@ public class TrackingService extends Service implements LocationListener{
         super.onDestroy();
     }
 
+    public Location getCurrentLocation() {
+        return currentLocation;
+    }
+
     @Override
     public void onLocationChanged(Location location) {
-        Log.i("info","TrackingService = " + location.toString());
+        currentLocation = location;
         Intent intent = new Intent(BROADCAST_LOCATION_CHANGE_ACTION);
         intent.putExtra("latitude",(float)location.getLatitude());
         intent.putExtra("longitude",(float)location.getLongitude());

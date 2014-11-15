@@ -12,6 +12,7 @@
 
     <string name="current_address">Текущий адрес</string>
     <string name="destination_address">Aдрес назначения</string>
+    <string name="speak_address">Говорите адрес</string>
 
     <string name="next">продолжить</string>
 
