@@ -14,6 +14,7 @@
     <string name="destination_address">Aдрес назначения</string>
     <string name="speak_address">Говорите адрес</string>
 
+    <string name="searching">поиск</string>
     <string name="next">продолжить</string>
 
 </resources>

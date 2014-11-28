@@ -13,6 +13,7 @@
     <string name="destination_address">Adres docelowy</string>
     <string name="speak_address">Mów teraz address</string>
 
+    <string name="searching">poszukiwania</string>
     <string name="next">następny</string>
 
 </resources>

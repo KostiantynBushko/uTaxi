@@ -33,6 +33,7 @@ public class AbstractFragmentWizard extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setRetainInstance(true);
         super.onCreate(savedInstanceState);
         Log.i("info","AbstractFragmentWizard onCreate");
     }
@@ -54,6 +55,7 @@ public class AbstractFragmentWizard extends Fragment {
     public void onPause() {
         Log.i("info","AbstractFragmentWizard onPause");
         super.onPause();
+        onSaveInstanceState(new Bundle());
     }
 
     @Override
@@ -81,5 +83,4 @@ public class AbstractFragmentWizard extends Fragment {
     }
 
     public void onRecognizer(String result){}
-
 }

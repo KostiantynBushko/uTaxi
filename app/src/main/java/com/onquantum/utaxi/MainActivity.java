@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.FragmentActivity;
 import android.telephony.TelephonyManager;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -179,5 +180,10 @@ public class MainActivity extends Activity implements FragmentsCommonInterface,A
             }
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+
     }
 }

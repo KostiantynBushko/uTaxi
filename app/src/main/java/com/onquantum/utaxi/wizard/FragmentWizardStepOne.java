@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -61,8 +62,17 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     private String country;
     private String language;
     private Geocoder geocoder;
+    private boolean clickNextButton = false;
+    private boolean isMapTouchesMove = false;
 
     private Intent tsIntent;
+    private Timer timer;
+
+    // UI Elements
+    private ProgressBar progressBar = null;
+    private Bundle savedInstanceState = null;
+
+    private Button nextButton = null;
 
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,20 +91,22 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
             root = layoutInflater.inflate(R.layout.wizard_step_one, container,false);
             touchableWrapper = new TouchableWrapper(getActivity());
             touchableWrapper.addView(root);
+            tvAddress = (TextView)root.findViewById(R.id.textView);
+            progressBar = (ProgressBar)root.findViewById(R.id.progressBar);
+
             if (googleMap == null) {
                 googleMap = ((MapFragment) getActivity().getFragmentManager().findFragmentById(R.id.map)).getMap();
                 googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
-                        Log.i("info"," Camera Position = " + cameraPosition.target);
                         cameraLocation = cameraPosition.target;
                     }
                 });
             }
         }catch (InflateException e){}
 
-
-        ((Button) root.findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+        nextButton = (Button)root.findViewById(R.id.button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
@@ -107,8 +119,14 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 transaction.commit();
             }
         });
+        //nextButton.setEnabled(false);
+        if (cameraLocation != null) {
+            updateCurrentPosition(cameraLocation);
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
-        tvAddress = (TextView)root.findViewById(R.id.textView);
+
 
         ((ImageButton)root.findViewById(R.id.voiceButton)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,36 +135,54 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
             }
         });
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                getActivity().startService(new Intent(getActivity(), TrackingService.class));
-                trackingServiceConnection = new ServiceConnection() {
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder service) {
-                        Log.i("info","Bind");
-                        trackingServiceIsBind = true;
-                    }
+        if (currentLocation == null) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    getActivity().startService(new Intent(getActivity(), TrackingService.class));
+                    trackingServiceConnection = new ServiceConnection() {
+                        @Override
+                        public void onServiceConnected(ComponentName name, IBinder service) {
+                            Log.i("info","Bind");
+                            trackingServiceIsBind = true;
+                        }
+                        @Override
+                        public void onServiceDisconnected(ComponentName name) {
+                            Log.i("info","Unbind");
+                            trackingServiceIsBind = false;
+                        }
+                    };
+                    //tsIntent = new Intent(getActivity(),TrackingService.class);
+                    //getActivity().bindService(tsIntent, trackingServiceConnection, Activity.BIND_AUTO_CREATE);
+                    locationBroadcastReceiver = new PositionReceiver();
+                    IntentFilter intentFilter = new IntentFilter(TrackingService.BROADCAST_LOCATION_CHANGE_ACTION);
+                    getActivity().registerReceiver( locationBroadcastReceiver,intentFilter);
+                    isTouchEnable = true;
+                }
+            },800);
+        }
 
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                        Log.i("info","Unbind");
-                        trackingServiceIsBind = false;
-                    }
-                };
-                //tsIntent = new Intent(getActivity(),TrackingService.class);
-                //getActivity().bindService(tsIntent, trackingServiceConnection, Activity.BIND_AUTO_CREATE);
-
-                locationBroadcastReceiver = new PositionReceiver();
-                IntentFilter intentFilter = new IntentFilter(TrackingService.BROADCAST_LOCATION_CHANGE_ACTION);
-                getActivity().registerReceiver( locationBroadcastReceiver,intentFilter);
-                isTouchEnable = true;
-            }
-        },800);
         Locale locale = new Locale(language,country);
         geocoder = new Geocoder(getActivity(),locale);
 
         return touchableWrapper;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        if (currentLocation != null) {
+            this.savedInstanceState = null;
+            this.savedInstanceState = new Bundle();
+            this.savedInstanceState.putDouble("lat",currentLocation.latitude);
+            this.savedInstanceState.putDouble("lng",currentLocation.longitude);
+            this.savedInstanceState.putString("address",tvAddress.getText().toString());
+        }
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
@@ -191,7 +227,6 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     public void onRecognizer(String result){
         Log.i("info"," On Recognizer = " + result);
         geocoder(result);
-
     }
 
     private void updateCurrentPosition(LatLng latLng) {
@@ -201,23 +236,28 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(16).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 isCurrentLocationSet = true;
-                geocoder(currentLocation);
+                geocode(currentLocation);
             }
         }
     }
 
-    private void geocoder(LatLng location) {
+    private void geocode(LatLng location) {
         try {
             if (location != null){
                 List<Address>addressList =  geocoder.getFromLocation(location.latitude,location.longitude,1);
                 if (!addressList.isEmpty()) {
-                    Log.i("info"," Address : " + addressList.get(0).toString());
+                    Log.i("info", " Address : " + addressList.get(0).toString());
                     pickupAddress = addressList.get(0);
                     String thoroughfare = pickupAddress.getThoroughfare();
                     String feature = pickupAddress.getFeatureName();
-                    if (thoroughfare.equals(feature)){
-                        tvAddress.setText(pickupAddress.getThoroughfare());
-                    } else {
+                    progressBar.setVisibility(View.GONE);
+                    if (thoroughfare != null) {
+                        if (thoroughfare.equals(feature)) {
+                            tvAddress.setText(pickupAddress.getThoroughfare());
+                        } else {
+                            tvAddress.setText(pickupAddress.getThoroughfare() + " " + pickupAddress.getFeatureName());
+                        }
+                    }else {
                         tvAddress.setText(pickupAddress.getThoroughfare() + " " + pickupAddress.getFeatureName());
                     }
                 }
@@ -247,6 +287,7 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(16).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
+            //nextButton.setEnabled(true);
          } catch (IOException e) {
             e.printStackTrace();
         }
@@ -262,6 +303,9 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
     }
 
     private class TouchableWrapper extends FrameLayout {
+        GeocodeTimerTask geocodeTimerTask = null;
+        float x,y = 0;
+        float d = 0;
         public TouchableWrapper(Context context) {
             super(context);
         }
@@ -272,18 +316,54 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     Log.i("info","ACTION_DOWN");
-                    isMapTouches = true;
+                    x = event.getX();
+                    y = event.getY();
                     break;
                 case MotionEvent.ACTION_UP:
                     Log.i("info","ACTION_UP");
+                    d = (float) Math.sqrt(Math.pow(event.getX() - x,2) + Math.pow(event.getY() - y, 2));
                     isMapTouches = false;
-                    if (cameraLocation != null)
-                        geocoder(cameraLocation);
+                    if (cameraLocation != null && isMapTouchesMove == true) {
+                        isMapTouchesMove = false;
+                        new Timer().schedule(geocodeTimerTask = new GeocodeTimerTask(), 5000);
+                    }
+                    x = 0;
+                    y = 0;
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    Log.i("info"," ACTION_MOVE x = " + x + " y = " + y);
+                    if (x > 0 && y > 0)
+                        d = (float) Math.sqrt(Math.pow(event.getX() - x,2) + Math.pow(event.getY() - y, 2));
+                    if (d > 30) {
+                        isMapTouchesMove = true;
+                        Log.i("info"," distance =  " + d);
+                        if (geocodeTimerTask != null) {
+                            geocodeTimerTask.cancel();
+                            geocodeTimerTask = null;
+                        }
+                        progressBar.setVisibility(View.VISIBLE);
+                        tvAddress.setText(getActivity().getResources().getText(R.string.searching));
+                    } else {
+                        x += event.getX();
+                        y += event.getY();
+                    }
                     break;
             }
             return super.dispatchTouchEvent(event);
+        }
+    }
+
+    /* Geocode task*/
+    class GeocodeTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("i","Run in UI thread : location = " + cameraLocation.latitude);
+                    geocode(cameraLocation);
+                }
+            });
         }
     }
 }
