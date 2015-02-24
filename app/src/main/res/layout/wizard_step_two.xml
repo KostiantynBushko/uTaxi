@@ -66,6 +66,18 @@
                 android:hint="@string/destination_address"/>
         </RelativeLayout>
 
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView"
+            android:layout_below="@+id/relativeLayout"
+            android:layout_above="@+id/button1"
+            android:layout_alignLeft="@+id/button1"
+            android:layout_alignStart="@+id/button1"
+            android:layout_alignRight="@+id/button1"
+            android:layout_alignEnd="@+id/button1"
+            android:visibility="invisible"/>
+
     </RelativeLayout>
 
 </RelativeLayout>

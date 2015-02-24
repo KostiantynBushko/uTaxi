@@ -57,6 +57,12 @@
             android:screenOrientation="portrait"></activity>
 
         <service android:name=".services.TrackingService"/>
+        <service android:name=".services.GetStreetsService">
+            <intent-filter>
+                <action android:name="com.onquantum.utaxi.service.GetStreetService"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </service>
 
     </application>
 

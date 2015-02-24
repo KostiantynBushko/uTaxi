@@ -315,26 +315,21 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                 return false;
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    Log.i("info","ACTION_DOWN");
                     x = event.getX();
                     y = event.getY();
                     break;
                 case MotionEvent.ACTION_UP:
-                    Log.i("info","ACTION_UP");
                     d = (float) Math.sqrt(Math.pow(event.getX() - x,2) + Math.pow(event.getY() - y, 2));
                     isMapTouches = false;
                     if (cameraLocation != null && isMapTouchesMove == true) {
                         isMapTouchesMove = false;
                         new Timer().schedule(geocodeTimerTask = new GeocodeTimerTask(), 5000);
                     }
-                    x = 0;
-                    y = 0;
+                    isMapTouchesMove = false;
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    Log.i("info"," ACTION_MOVE x = " + x + " y = " + y);
-                    if (x > 0 && y > 0)
-                        d = (float) Math.sqrt(Math.pow(event.getX() - x,2) + Math.pow(event.getY() - y, 2));
-                    if (d > 30) {
+                    d = (float) Math.sqrt(Math.pow(event.getX() - x, 2) + Math.pow(event.getY() - y, 2));
+                    if (d > 100) {
                         isMapTouchesMove = true;
                         Log.i("info"," distance =  " + d);
                         if (geocodeTimerTask != null) {
@@ -343,9 +338,6 @@ public class FragmentWizardStepOne extends AbstractFragmentWizard {
                         }
                         progressBar.setVisibility(View.VISIBLE);
                         tvAddress.setText(getActivity().getResources().getText(R.string.searching));
-                    } else {
-                        x += event.getX();
-                        y += event.getY();
                     }
                     break;
             }
